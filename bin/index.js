@@ -56,8 +56,6 @@ function execScriptForPlatform(platform, callback) {
         pkgJson.scripts['env'] : null
     );
 
-
-
     exec(qs + pkgJson.scripts[arg], function(err) {
         pkgJson.scripts = scriptsBefore;
         fs.writeFileSync('./package.json', JSON.stringify(pkgJson, null, 4));
@@ -66,7 +64,7 @@ function execScriptForPlatform(platform, callback) {
 }
 
 function run(platform) {
-    execScriptForPlatform('win', function(err) {
+    execScriptForPlatform(platform, function(err) {
         if (err) {
             process.stderr.write(`npmcs: error executing ${platform} scripts\n`);
             process.stderr.write(err);

@@ -2,8 +2,11 @@
 
 npmcs automatically detects the host operating system, and runs commands specified in package.json for the right platform.
 
+This enables you to tweak npm scripts to run differently depending on the host platform and without worrying about a certain command being cross platform.  
+
 With npmcs, your package.json scripts changes to this:
-`"scripts": {
+```
+"scripts": {
         "start": "npmcs start",
         "win": {
             "start": "start npm run dev",
@@ -21,7 +24,8 @@ With npmcs, your package.json scripts changes to this:
             "build": "start webpack -d --watch",
             "test": "echo \"Error: no test specified\" && exit 1"
         }
-    },` 
+    }
+ ``` 
 
 # Installation
     `npm install -g npmcs`

@@ -3,6 +3,7 @@
 const path = require('path');
 const fs = require('fs');
 const qs = require('querystring');
+
 let pkgJson;
 try {
     pkgJson = require(path.join(process.cwd(), 'package'));
@@ -14,6 +15,7 @@ const { exec } = require('child_process');
 
 let arg = process.argv[2];
 let overridePlatform = process.argv[3];
+let mode = process.argv[4] || '';
 if (!arg) {
     process.stderr.write('npmcs: entry script must be supplied as an argument');
     process.exit();
@@ -21,9 +23,11 @@ if (!arg) {
 
 function execScriptForPlatform(platform, callback) {
     const scriptsBefore = {}
+
     for (key in pkgJson.scripts) {
         scriptsBefore[key] = pkgJson.scripts[key];
     }
+
     for (key in pkgJson.scripts[platform]) {
         if (pkgJson.scripts['env'] && key === 'env') {
             process.stderr.write(`npcms: conflict 'env' script cannot exist within ${platform} scripts, please rename.`)
@@ -37,14 +41,22 @@ function execScriptForPlatform(platform, callback) {
     let os = process.platform === 'win32' ? 'win' : 'nix';
     let cmd = os == 'win' ? 'set ' : 'export ';
 
-    let qs = (function createEnvironmentString(obj) {
+    let qs = (function(obj) {
         let qs = '';
         if (!obj) return qs;
         for (key in obj) {
             qs += cmd + key + '=' + obj[key] + '&&';
         }
         return qs;
-    })(pkgJson.scripts[platform + '-env'] || pkgJson.scripts[os + '-env'] || pkgJson.scripts['env'])
+    })(pkgJson.scripts['env'] ?
+        pkgJson.scripts['env'][platform + '-' + mode] ||
+        pkgJson.scripts['env'][os + '-' + mode] ||
+        pkgJson.scripts['env'][platform] ||
+        pkgJson.scripts['env'][os] ||
+        pkgJson.scripts['env'] : null
+    );
+
+
 
     exec(qs + pkgJson.scripts[arg], function(err) {
         pkgJson.scripts = scriptsBefore;

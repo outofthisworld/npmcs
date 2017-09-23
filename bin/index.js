@@ -2,7 +2,6 @@
 
 const path = require('path');
 const fs = require('fs');
-const qs = require('querystring');
 
 let pkgJson;
 try {
@@ -24,66 +23,61 @@ if (!arg) {
     process.exit();
 }
 
-function execScriptForPlatform(platform, callback) {
-    const scriptsBefore = {}
-
-    for (key in pkgJson.scripts) {
-        scriptsBefore[key] = pkgJson.scripts[key];
+(function run(platform) {
+    if (!platform) {
+        process.stderr.write('npmcs: could not find scripts to run, is your package.json structure correct?');
+        process.exit();
     }
 
-    for (key in pkgJson.scripts[platform]) {
-        if (pkgJson.scripts['env'] && key === 'env') {
-            process.stderr.write(`npcms: conflict 'env' script cannot exist within ${platform} scripts, please rename.`)
-            process.exit();
+    (function(callback) {
+        const scriptsBefore = {}
+
+        for (key in pkgJson.scripts) {
+            scriptsBefore[key] = pkgJson.scripts[key];
         }
-        pkgJson.scripts[key] = pkgJson.scripts[platform][key];
-    }
 
-    fs.writeFileSync(path.join(process.cwd(), 'package.json'), JSON.stringify(pkgJson, null, 4));
-
-    let os = process.platform === 'win32' ? 'win' : 'nix';
-    let cmd = os == 'win' ? 'set ' : 'export ';
-
-    let qs = (function(obj) {
-        let qs = '';
-        if (!obj) return qs;
-        for (key in obj) {
-            qs += cmd + key + '=' + obj[key] + '&&';
+        for (key in pkgJson.scripts[platform]) {
+            if (pkgJson.scripts['env'] && key === 'env') {
+                process.stderr.write(`npcms: conflict 'env' script cannot exist within ${platform} scripts, please rename.`)
+                process.exit();
+            }
+            pkgJson.scripts[key] = pkgJson.scripts[platform][key];
         }
-        return qs;
-    })(pkgJson.scripts['env'] ?
-        pkgJson.scripts['env'][platform + '-' + mode] ||
-        pkgJson.scripts['env'][os + '-' + mode] ||
-        pkgJson.scripts['env'][platform] ||
-        pkgJson.scripts['env'][os] ||
-        pkgJson.scripts['env'] : null
-    );
 
-    exec(qs + pkgJson.scripts[arg], function(err) {
-        pkgJson.scripts = scriptsBefore;
-        fs.writeFileSync('./package.json', JSON.stringify(pkgJson, null, 4));
-        return callback(err);
-    });
-}
+        fs.writeFileSync(path.join(process.cwd(), 'package.json'), JSON.stringify(pkgJson, null, 4));
 
-function run(platform) {
-    execScriptForPlatform(platform, function(err) {
+        let os = process.platform === 'win32' ? 'win' : 'nix';
+        let cmd = os == 'win' ? 'set ' : 'export ';
+
+        let qs = (function(obj) {
+            let qs = '';
+            if (!obj) return qs;
+            for (key in obj) {
+                qs += cmd + key + '=' + obj[key] + '&&';
+            }
+            return qs;
+        })(pkgJson.scripts['env'] ?
+            pkgJson.scripts['env'][platform + '-' + mode] ||
+            pkgJson.scripts['env'][os + '-' + mode] ||
+            pkgJson.scripts['env'][platform] ||
+            pkgJson.scripts['env'][os] ||
+            pkgJson.scripts['env'] : null
+        );
+
+        exec(qs + pkgJson.scripts[arg], function(err) {
+            pkgJson.scripts = scriptsBefore;
+            fs.writeFileSync('./package.json', JSON.stringify(pkgJson, null, 4));
+            return callback(err);
+        });
+    })(function(err) {
         if (err) {
             process.stderr.write(`npmcs: error executing ${platform} scripts\n`);
             process.stderr.write(err);
         } else {
-            process.stdout.write(`npmcs: succesfully executed ${platform} scripts`);
+            process.stdout.write(`npmcs: succesfully executed ${platform} scripts in mode ${mode}`);
         }
         process.exit();
     });
-}
-
-if (process.platform === 'win32' && pkgJson.scripts.win) {
-    run('win');
-} else if (pkgJson.scripts.nix) {
-    run('nix')
-} else if (overridePlatform) {
-    run(overridePlatform);
-} else {
-    process.stderr.write('npmcs: could not find scripts to run, is your package.json structure correct?');
-}
+})(process.platform === 'win32' && pkgJson.scripts.win ? 'win' :
+    pkgJson.scripts.nix ? 'nix' : overridePlatform &&
+    pkgJson.scripts[overridePlatform] ? overridePlatform : null)

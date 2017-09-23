@@ -11,20 +11,32 @@ With npmcs, your package.json scripts changes to this:
         "win": {
             "start": "start npm run dev",
             "dev": "SET NODE_ENV=development && npm run build && npm run nodemon",
-            "prod": "node src/app.js --production",
+            "prod": "SET NODE_ENV=production node src/app.js --production",
             "nodemon": "nodemon --debug src/app.js",
             "build": "start webpack -d --watch",
             "test": "echo \"Error: no test specified\" && exit 1"
         },
         "nix": {
             "start": "start npm run dev",
-            "dev": "npm run build && npm run nodemon",
-            "prod": "node src/app.js --production",
+            "dev": "export NODE_ENV=development && npm run build && npm run nodemon",
+            "prod": "export NODE_ENV=production node src/app.js --production",
             "nodemon": "nodemon --debug src/app.js",
             "build": "start webpack -d --watch",
             "test": "echo \"Error: no test specified\" && exit 1"
         }
     }
+ ``` 
+# environment
+ npmcs also allows you to define environmental variables in a cross platform way by specifying "env" within the scripts portion of your package.json file.
+
+ The following script sets the NODE_ENV environment variable no matter if you're running on windows or linux/unix.
+
+ ```
+"scripts": {
+    "env": {
+         "NODE_ENV": "development"
+    }
+}
  ``` 
 
 # Installation

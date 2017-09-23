@@ -2,6 +2,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const qs = require('querystring');
 let pkgJson;
 try {
     pkgJson = require(path.join(process.cwd(), 'package'));
@@ -24,10 +25,28 @@ function execScriptForPlatform(platform, callback) {
         scriptsBefore[key] = pkgJson.scripts[key];
     }
     for (key in pkgJson.scripts[platform]) {
+        if (pkgJson.scripts['env'] && key === 'env') {
+            process.stderr.write(`npcms: conflict 'env' script cannot exist within ${platform} scripts, please rename.`)
+            process.exit();
+        }
         pkgJson.scripts[key] = pkgJson.scripts[platform][key];
     }
+
     fs.writeFileSync(path.join(process.cwd(), 'package.json'), JSON.stringify(pkgJson, null, 4));
-    exec(pkgJson.scripts[arg], function(err) {
+
+    let os = process.platform === 'win32' ? 'win' : 'nix';
+    let cmd = os == 'win' ? 'set ' : 'export ';
+
+    let qs = (function createEnvironmentString(obj) {
+        let qs = '';
+        if (!obj) return qs;
+        for (key in obj) {
+            qs += cmd + key + '=' + obj[key] + '&&';
+        }
+        return qs;
+    })(pkgJson.scripts[platform + '-env'] || pkgJson.scripts[os + '-env'] || pkgJson.scripts['env'])
+
+    exec(qs + pkgJson.scripts[arg], function(err) {
         pkgJson.scripts = scriptsBefore;
         fs.writeFileSync('./package.json', JSON.stringify(pkgJson, null, 4));
         return callback(err);

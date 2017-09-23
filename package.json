@@ -1,0 +1,15 @@
+{
+    "name": "npmcs",
+    "version": "1.0.0",
+    "description": "Segregrate your npm scripts for windows and linux and run with one command.",
+    "main": "./bin/index.js",
+    "bin": {
+        "npmcs": "./bin/index.js"
+    },
+    "scripts": {
+        "start": "cross-script"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {}
+}

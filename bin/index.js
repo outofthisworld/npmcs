@@ -2,8 +2,9 @@
 
 const path = require('path');
 const fs = require('fs');
+let pkgJson;
 try {
-    const pkgJson = require(path.join(process.cwd(), 'packag'));
+    pkgJson = require(path.join(process.cwd(), 'package'));
 } catch (err) {
     process.stderr.write('npmcs : ' + 'could not locate package.json file, are you running the command from the root project directory?');
     process.exit();
@@ -11,7 +12,7 @@ try {
 const { exec } = require('child_process');
 
 let arg = process.argv[2];
-
+let overridePlatform = process.argv[3];
 if (!arg) {
     process.stderr.write('npmcs: entry script must be supplied as an argument');
     process.exit();
@@ -33,24 +34,24 @@ function execScriptForPlatform(platform, callback) {
     });
 }
 
-if (process.platform === 'win32' && pkgJson.scripts.win) {
+function run(platform) {
     execScriptForPlatform('win', function(err) {
         if (err) {
-            process.stderr.write('npmcs: error executing win scripts\n');
+            process.stderr.write(`npmcs: error executing ${platform} scripts\n`);
             process.stderr.write(err);
         } else {
-            process.stdout.write('npmcs: succesfully executed win scripts');
+            process.stdout.write(`npmcs: succesfully executed ${platform} scripts`);
         }
+        process.exit();
     });
+}
+
+if (process.platform === 'win32' && pkgJson.scripts.win) {
+    run('win');
 } else if (pkgJson.scripts.nix) {
-    execScriptForPlatform('nix', function(err) {
-        if (err) {
-            process.stderr.write('npmcs: error executing nix scripts\n');
-            process.stderr.write(err);
-        } else {
-            process.stdout.write('npmcs: succesfully executed nix scripts');
-        }
-    });
+    run('nix')
+} else if (overridePlatform) {
+    run(overridePlatform);
 } else {
-    process.stderr.write('Could not find script for platform');
+    process.stderr.write('npmcs: could not find scripts to run, is your package.json structure correct?');
 }

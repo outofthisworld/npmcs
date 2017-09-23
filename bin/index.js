@@ -15,7 +15,10 @@ const { exec } = require('child_process');
 
 let arg = process.argv[2];
 let overridePlatform = process.argv[3];
-let mode = process.argv[4] || '';
+
+let mode = overridePlatform === 'production' ? 'production' : overridePlatform === 'development' ? 'development' : process.argv[4] || '';
+overridePlatform = overridePlatform === 'production' || overridePlatform === 'development' ? null : overridePlatform;
+
 if (!arg) {
     process.stderr.write('npmcs: entry script must be supplied as an argument');
     process.exit();

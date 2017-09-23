@@ -1,10 +1,10 @@
 # npmcs
 
-npmcs automatically detects the host operating system, and runs commands specified in package.json for the right platform.
+npmcs is a tool for easily making cross platform scripts within your package.json. npmcs automatically detects the host operating system, and runs commands specified in package.json for the right platform.
 
 This enables you to tweak npm scripts to run differently depending on the host platform and without worrying about a certain command being cross platform.  
 
-With npmcs, your package.json scripts changes to this:
+With npmcs, your package.json scripts object changes to this:
 ```
 "scripts": {
         "start": "npmcs start",
@@ -38,6 +38,24 @@ With npmcs, your package.json scripts changes to this:
     }
 }
  ``` 
+
+ This can be further refined by setting environmental variables based on the running platform:
+
+  ```
+"scripts": {
+    "env": {
+        "win-env":{
+             "NODE_ENV": "development"
+        },
+        "nix-env":{
+              "NODE_ENV": "development",
+              "ONLY_ON_NIX":"SomethingNixSpecific"
+        }
+    }
+}
+ ``` 
+
+ npmcs will look for properties defined in [platform]-env first before defaulting to env to find environmental variables. 
 
 # Installation
     `npm install -g npmcs`

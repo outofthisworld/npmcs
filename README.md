@@ -7,7 +7,7 @@ This enables you to tweak npm scripts to run differently depending on the host p
 With npmcs, your package.json scripts object changes to this:
 ```
 "scripts": {
-        "start": "npmcs start",
+        "start": "node node_modules/npmcs/bin start",
         "win": {
             "start": "start npm run dev",
             "dev": "SET NODE_ENV=development && npm run build && npm run nodemon",
@@ -26,6 +26,15 @@ With npmcs, your package.json scripts object changes to this:
         }
     }
  ``` 
+
+ # Installation
+
+Installation as a dev dependency (recommended):
+```npm install --save-dev npmcs```
+
+alternatively npmcs can be installed globablly:
+```npm install -g npmcs```
+
 # environment
  npmcs also allows you to define environmental variables in a cross platform way by specifying "env" within the scripts portion of your package.json file. 
  
@@ -86,12 +95,8 @@ With npmcs, your package.json scripts object changes to this:
 
  For development/production to work you must provide npcms an argument specifying if youre running development or production, thus the command becomes:
 
- ```npmcs [start] development```
+ ```node node_modules/npmcs/bin start development [start] development```
 
  or similarily:
- 
- ```npmcs [start] production```
 
-
-# Installation
-    `npm install -g npmcs`
+ ```node node_modules/npmcs/bin start development [start] production```

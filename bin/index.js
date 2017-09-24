@@ -2,6 +2,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const { exec } = require('child_process');
 
 let pkgJson;
 try {
@@ -10,25 +11,25 @@ try {
     process.stderr.write('npmcs : ' + 'could not locate package.json file, are you running the command from the root project directory?');
     process.exit();
 }
-const { exec } = require('child_process');
 
 let arg = process.argv[2];
-let overridePlatform = process.argv[3];
-
-let mode = overridePlatform === 'production' ? 'production' : overridePlatform === 'development' ? 'development' : process.argv[4] || '';
-overridePlatform = overridePlatform === 'production' || overridePlatform === 'development' ? null : overridePlatform;
 
 if (!arg) {
     process.stderr.write('npmcs: entry script must be supplied as an argument');
     process.exit();
 }
 
+let overridePlatform = process.argv[3];
+
+let mode = overridePlatform === 'production' ? 'production' : overridePlatform === 'development' ? 'development' : process.argv[4];
+overridePlatform = overridePlatform === 'production' || overridePlatform === 'development' ? null : overridePlatform;
+
+
 (function run(platform) {
     if (!platform) {
         process.stderr.write('npmcs: could not find scripts to run, is your package.json structure correct?');
         process.exit();
     }
-
     (function(callback) {
         const scriptsBefore = {}
 
@@ -78,6 +79,6 @@ if (!arg) {
         }
         process.exit();
     });
-})(process.platform === 'win32' && pkgJson.scripts.win ? 'win' :
-    pkgJson.scripts.nix ? 'nix' : overridePlatform &&
-    pkgJson.scripts[overridePlatform] ? overridePlatform : null)
+})(overridePlatform && pkgJson.scripts[overridePlatform] ?
+    overridePlatform : process.platform === 'win32' && pkgJson.scripts.win ?
+    'win' : pkgJson.scripts.nix ? 'nix' : null)

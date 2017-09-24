@@ -27,10 +27,12 @@ With npmcs, your package.json scripts object changes to this:
     }
  ``` 
 # environment
- npmcs also allows you to define environmental variables in a cross platform way by specifying "env" within the scripts portion of your package.json file.
+ npmcs also allows you to define environmental variables in a cross platform way by specifying "env" within the scripts portion of your package.json file. 
+ 
+ This will not override any environmental settings that may have been set in your commands making it perfectly safe
+ to split setting environmental variables between the script commands and the env setting.
 
  The following script sets the NODE_ENV environment variable no matter if you're running on windows or linux/unix.
-
  ```
 "scripts": {
     "env": {
@@ -44,10 +46,10 @@ With npmcs, your package.json scripts object changes to this:
   ```
 "scripts": {
     "env": {
-        "win-env":{
+        "win":{
              "NODE_ENV": "development"
         },
-        "nix-env":{
+        "nix":{
               "NODE_ENV": "development",
               "ONLY_ON_NIX":"SomethingNixSpecific"
         }
@@ -55,7 +57,36 @@ With npmcs, your package.json scripts object changes to this:
 }
  ``` 
 
- npmcs will look for properties defined in [platform]-env first before defaulting to env to find environmental variables. 
+ npmcs will look for properties defined in [platform] first before defaulting to env to find environmental variables. 
+
+
+ npcms also lets you define environmental variables based on if you're running in development or production mode.
+ To achieve this, you append -production or -development to the entries within the env.
+
+```
+"scripts": {
+    "env": {
+        "win-production":{
+            "NODE_ENV": "production"
+        },
+        "win-development":{
+            "NODE_ENV": "development"
+        },
+        "nix-production":{
+            "NODE_ENV": "development",
+            "ONLY_ON_NIX":"SomethingNixSpecific"
+        },
+        "nix-development":{
+            "NODE_ENV": "development",
+            "ONLY_ON_NIX":"SomethingNixSpecific"
+        }
+    }
+}
+ ``` 
+
+ For development/production to work you must provide npcms an argument specifying if youre running development or production, thus the command becomes:
+
+ ```npmcs [npm command to run] development || npmcs [npm command to run] production ```
 
 # Installation
     `npm install -g npmcs`

@@ -86,7 +86,12 @@ With npmcs, your package.json scripts object changes to this:
 
  For development/production to work you must provide npcms an argument specifying if youre running development or production, thus the command becomes:
 
- ```npmcs [npm command to run] development || npmcs [npm command to run] production ```
+ ```npmcs [start] development```
+
+ or similarily:
+ 
+ ```npmcs [start] production```
+
 
 # Installation
     `npm install -g npmcs`

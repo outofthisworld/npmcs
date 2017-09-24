@@ -1,39 +1,50 @@
 # npmcs
 
-npmcs is a tool for easily making cross platform scripts within your package.json. npmcs automatically detects the host operating system, and runs commands specified in package.json for the right platform.
+npmcs is a tool for easily defining scripts that run depending on the host operating systems platform,
+enabling you to run scripts without worrying about ensuring a script will run on both windows and linux. 
+Furthermore, because scripts are defined in a .js file rather than .json, scripts can be commented
+making it easier to work with.
 
-This enables you to tweak npm scripts to run differently depending on the host platform and without worrying about a certain command being cross platform.  
-
-With npmcs, your package.json scripts object changes to this:
+With npmcs, you define an npmcs-scripts.js file in the root directory of your application:
 ```
-"scripts": {
-        "start": "node node_modules/npmcs/bin start",
-        "win": {
-            "start": "start npm run dev",
-            "dev": "SET NODE_ENV=development && npm run build && npm run nodemon",
-            "prod": "SET NODE_ENV=production node src/app.js --production",
-            "nodemon": "nodemon --debug src/app.js",
-            "build": "start webpack -d --watch",
-            "test": "echo \"Error: no test specified\" && exit 1"
-        },
-        "nix": {
-            "start": "start npm run dev",
-            "dev": "export NODE_ENV=development && npm run build && npm run nodemon",
-            "prod": "export NODE_ENV=production node src/app.js --production",
-            "nodemon": "nodemon --debug src/app.js",
-            "build": "start webpack -d --watch",
-            "test": "echo \"Error: no test specified\" && exit 1"
-        }
-    }
+//npmcs-scripts.js
+module.exports = {
+	scripts: {
+		/*
+            Windows scripts, run on a windows environment
+        */
+		win: {
+			start: 'start npm run dev',
+			dev: 'SET NODE_ENV=development && npm run build && npm run nodemon',
+			prod: 'SET NODE_ENV=production node src/app.js',
+			nodemon: 'nodemon --debug src/app.js',
+			build: 'start webpack -d --watch',
+			test: 'echo "Error: no test specified" && exit 1'
+		},
+		/*
+            Unix scripts, run on a unix environment
+        */
+		nix: {
+			start: 'npm run dev',
+			dev: 'export NODE_ENV=development && npm run build && npm run nodemon',
+			prod: 'export NODE_ENV=production node src/app.js',
+			nodemon: 'nodemon --debug src/app.js',
+			build: 'webpack -d --watch',
+			test: 'echo "Error: no test specified" && exit 1'
+		}
+	}
+}
  ``` 
 
- # Installation
+# Installation
 
 Installation as a dev dependency (recommended):
-```npm install --save-dev npmcs```
+
+`npm install --save-dev npmcs`
 
 alternatively npmcs can be installed globablly:
-```npm install -g npmcs```
+
+`npm install -g npmcs`
 
 # environment
  npmcs also allows you to define environmental variables in a cross platform way by specifying "env" within the scripts portion of your package.json file. 
@@ -43,9 +54,9 @@ alternatively npmcs can be installed globablly:
 
  The following script sets the NODE_ENV environment variable no matter if you're running on windows or linux/unix.
  ```
-"scripts": {
-    "env": {
-         "NODE_ENV": "development"
+module.exports = {
+    env: {
+         NODE_ENV: "development"
     }
 }
  ``` 
@@ -53,16 +64,17 @@ alternatively npmcs can be installed globablly:
  This can be further refined by setting environmental variables based on the running platform:
 
   ```
-"scripts": {
-    "env": {
-        "win":{
-             "NODE_ENV": "development"
-        },
-        "nix":{
-              "NODE_ENV": "development",
-              "ONLY_ON_NIX":"SomethingNixSpecific"
-        }
-    }
+module.exports = {
+    env: {
+		/* Windows environmental variables */
+		win: {
+			NODE_ENV: 'development'
+		},
+		/* Unix environmental variables */
+		nix: {
+			NODE_ENV: 'development'
+		}
+	}
 }
  ``` 
 
@@ -73,21 +85,21 @@ alternatively npmcs can be installed globablly:
  To achieve this, you append -production or -development to the entries within the env.
 
 ```
-"scripts": {
-    "env": {
-        "win-production":{
-            "NODE_ENV": "production"
+module.exports =  {
+    env: {
+        win-production:{
+            NODE_ENV: "production"
         },
-        "win-development":{
-            "NODE_ENV": "development"
+        win-development:{
+            NODE_ENV: "development"
         },
-        "nix-production":{
-            "NODE_ENV": "development",
-            "ONLY_ON_NIX":"SomethingNixSpecific"
+        nix-production:{
+            NODE_ENV: "development",
+            ONLY_ON_NIX:"SomethingNixSpecific"
         },
-        "nix-development":{
-            "NODE_ENV": "development",
-            "ONLY_ON_NIX":"SomethingNixSpecific"
+        nix-development:{
+            NODE_ENV: "development",
+            ONLY_ON_NIX:"SomethingNixSpecific"
         }
     }
 }
@@ -95,8 +107,8 @@ alternatively npmcs can be installed globablly:
 
  For development/production to work you must provide npcms an argument specifying if youre running development or production, thus the command becomes:
 
- ```node node_modules/npmcs/bin start development [start] development```
+ ```node node_modules/npmcs/bin [start] development```
 
  or similarily:
 
- ```node node_modules/npmcs/bin start development [start] production```
+ ```node node_modules/npmcs/bin [start] development```

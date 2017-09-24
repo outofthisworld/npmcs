@@ -4,11 +4,20 @@ const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
 
+let npmcsScript;
 let pkgJson;
+
+try {
+    npmcsScript = require(path.join(process.cwd(), 'npmcs-scripts'));
+} catch (err) {
+    process.stderr.write('npmcs : could not locate npmcs-script.js file, are you running the command from the root project directory?');
+    process.exit();
+}
+
 try {
     pkgJson = require(path.join(process.cwd(), 'package'));
 } catch (err) {
-    process.stderr.write('npmcs : ' + 'could not locate package.json file, are you running the command from the root project directory?');
+    process.stderr.write('npmcs : could not locate package.json file, are you running the command from the root project directory?');
     process.exit();
 }
 
@@ -25,8 +34,8 @@ let mode = overridePlatform === 'production' ? 'production' : overridePlatform =
 overridePlatform = overridePlatform === 'production' || overridePlatform === 'development' ? null : overridePlatform;
 
 
-(function run(platform) {
-    if (!platform) {
+(function run(scripts) {
+    if (!scripts) {
         process.stderr.write('npmcs: could not find scripts to run, is your package.json structure correct?');
         process.exit();
     }
@@ -37,15 +46,11 @@ overridePlatform = overridePlatform === 'production' || overridePlatform === 'de
             scriptsBefore[key] = pkgJson.scripts[key];
         }
 
-        for (key in pkgJson.scripts[platform]) {
-            if (pkgJson.scripts['env'] && key === 'env') {
-                process.stderr.write(`npcms: conflict 'env' script cannot exist within ${platform} scripts, please rename.`)
-                process.exit();
-            }
-            pkgJson.scripts[key] = pkgJson.scripts[platform][key];
+        for (key in scripts[platform]) {
+            pkgJson.scripts[key] = scripts[key];
         }
 
-        fs.writeFileSync(path.join(process.cwd(), 'package.json'), JSON.stringify(pkgJson, null, 4));
+        fs.writeFileSync('./package.json', JSON.stringify(pkgJson, null, 4));
 
         let os = process.platform === 'win32' ? 'win' : 'nix';
         let cmd = os == 'win' ? 'set ' : 'export ';
@@ -57,12 +62,12 @@ overridePlatform = overridePlatform === 'production' || overridePlatform === 'de
                 qs += cmd + key + '=' + obj[key] + '&&';
             }
             return qs;
-        })(pkgJson.scripts['env'] ?
-            pkgJson.scripts['env'][platform + '-' + mode] ||
-            pkgJson.scripts['env'][os + '-' + mode] ||
-            pkgJson.scripts['env'][platform] ||
-            pkgJson.scripts['env'][os] ||
-            pkgJson.scripts['env'] : null
+        })(npmcsScript['env'] ?
+            npmcsScript['env'][platform + '-' + mode] ||
+            npmcsScript['env'][os + '-' + mode] ||
+            npmcsScript['env'][platform] ||
+            npmcsScript['env'][os] ||
+            npmcsScript['env'] : null
         );
 
         exec(qs + pkgJson.scripts[arg], function(err) {
@@ -79,6 +84,6 @@ overridePlatform = overridePlatform === 'production' || overridePlatform === 'de
         }
         process.exit();
     });
-})(overridePlatform && pkgJson.scripts[overridePlatform] ?
-    overridePlatform : process.platform === 'win32' && pkgJson.scripts.win ?
-    'win' : pkgJson.scripts.nix ? 'nix' : null)
+})(overridePlatform && npmcsScript.scripts[overridePlatform] ?
+    npmcsScript.scripts[overridePlatform] : process.platform === 'win32' && npmcsScript.scripts.win ?
+    npmcsScript.scripts.win : npmcsScript.scripts.nix ? npmcsScript.scripts.nix : null)

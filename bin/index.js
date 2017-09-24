@@ -4,47 +4,68 @@ const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
 
-let npmcsScript;
-let pkgJson;
+/**
+ * Pases command line arguments.
+ * 
+ * @returns 
+ */
+function parseArgs() {
+    let npmcsScript;
+    let pkgJson;
 
-try {
-    npmcsScript = readNpmcsScripts();
-} catch (err) {
-    process.stderr.write(
-        "npmcs : could not locate npmcs-script.js file, are you running the command from the root project directory?"
-    );
-    process.exit();
+    try {
+        npmcsScript = readNpmcsScripts();
+    } catch (err) {
+        process.stderr.write(
+            "npmcs : could not locate npmcs-script.js file, are you running the command from the root project directory?"
+        );
+        process.exit();
+    }
+
+    try {
+        pkgJson = readPackageJsonFile();
+    } catch (err) {
+        process.stderr.write(
+            "npmcs : could not locate package.json file, are you running the command from the root project directory?"
+        );
+        process.exit();
+    }
+
+    let commandToRun = process.argv[2];
+
+    if (!commandToRun) {
+        process.stderr.write("npmcs: entry script must be supplied as an argument");
+        process.exit();
+    }
+
+    let customPlatform = process.argv[3];
+
+    let mode =
+        customPlatform === "production" ?
+        "production" :
+        customPlatform === "development" ? "development" : process.argv[4];
+
+    customPlatform =
+        customPlatform === "production" || customPlatform === "development" ?
+        null :
+        customPlatform;
+
+    return {
+        /* The npmcs script object */
+        npmcsScript,
+        /* pkgJson object */
+        pkgJson,
+        /* The command to run*/
+        commandToRun,
+        /* Set if the user has specified there own platform */
+        customPlatform,
+        /* production or development mode */
+        mode
+    };
 }
-
-try {
-    pkgJson = readPackageJsonFile();
-} catch (err) {
-    process.stderr.write(
-        "npmcs : could not locate package.json file, are you running the command from the root project directory?"
-    );
-    process.exit();
-}
-
-let arg = process.argv[2];
-
-if (!arg) {
-    process.stderr.write("npmcs: entry script must be supplied as an argument");
-    process.exit();
-}
-
-let overridePlatform = process.argv[3];
-
-let mode =
-    overridePlatform === "production" ?
-    "production" :
-    overridePlatform === "development" ? "development" : process.argv[4];
-overridePlatform =
-    overridePlatform === "production" || overridePlatform === "development" ?
-    null :
-    overridePlatform;
 
 /**
- * 
+ * Reads npmcs-scripts.js file from process.cwd()
  * 
  * @returns result of reading npmcs-scripts.js file
  */
@@ -53,7 +74,7 @@ function readNpmcsScripts() {
 }
 
 /**
- * 
+ * Reads package.json file from process.cwd()
  * 
  * @returns result of reading package.json file
  */
@@ -74,7 +95,7 @@ function assign(to, from, replace = true) {
 }
 
 /**
- * 
+ * Writes the package.json file from a javascript pkgJson object.
  * 
  * @param {any} pkgJson 
  */
@@ -83,7 +104,7 @@ function writePackageJsonFile(pkgJson) {
 }
 
 /**
- * 
+ * Gets the current platform in a simplified manner.
  * 
  * @returns 
  */
@@ -92,22 +113,23 @@ function getPlatform() {
 }
 
 /**
- * 
+ * Finds the keyword for setting environmental varaiable in the current os.
  * 
  * @returns 
  */
 function getOsEnvironmentalKeyword() {
-    return os == "win" ? "set " : "export ";
+    return getPlatform() == "win" ? "set " : "export ";
 }
 
 /**
- * 
- * 
+ * Creates a string from a javascript object
+ * that will enable setting multiple environmental variables for the current os.
  * @param {any} obj 
  * @returns 
  */
 function buildEnvironmentalScript(obj) {
     let qs = "";
+    let cmd = getOsEnvironmentalKeyword();
     if (!obj) return qs;
     for (key in obj) {
         qs += cmd + key + "=" + obj[key] + "&&";
@@ -116,15 +138,32 @@ function buildEnvironmentalScript(obj) {
 }
 
 /**
- * 
+ * Builds the command to be run by exec.
  * 
  * @param {any} scripts 
  */
-function run(scripts) {
-    if (!scripts) {
-        throw new Error(
-            "npmcs: could not find scripts to run, is your npmcs-scripts.js structure correct?"
-        );
+function buildCommand(options) {
+    let pkgJson = options.pkgJson;
+    let npmcsScript = options.npmcsScript;
+    let mode = options.mode;
+    let customPlatform = options.customPlatform;
+    let commandToRun = options.commandToRun;
+    let err;
+
+    if (!pkgJson) {
+        err = "npmcs: package.json file was not specified.";
+    }
+
+    if (!npmcsScript) {
+        err = "npmcs: npmcs-scripts.js file was not specified.";
+    }
+
+    if (!commandToRun in npmcsScript) {
+        err = `npmcs: could not locate ${commandToRun} in npmcs-scripts.js file.`;
+    }
+
+    if (err) {
+        throw new Error(err);
         process.exit();
     }
 
@@ -136,37 +175,32 @@ function run(scripts) {
     writePackageJsonFile(pkgJson);
 
     let os = getPlatform();
-    let cmd = os == getOsEnvironmentalKeyword();
 
     let qs = buildEnvironmentalScript(
         npmcsScript["env"] ?
-        npmcsScript["env"][overridePlatform + "-" + mode] ||
+        npmcsScript["env"][customPlatform + "-" + mode] ||
         npmcsScript["env"][os + "-" + mode] ||
-        npmcsScript["env"][overridePlatform] ||
+        npmcsScript["env"][customPlatform] ||
         npmcsScript["env"][os] ||
         npmcsScript["env"] :
         null
     );
 
-    exec(qs + pkgJson.scripts[arg], function(err) {
-        pkgJson.scripts = scriptsBefore;
-        writePackageJsonFile(pkgJson);
-        if (err) {
-            process.stderr.write(`npmcs: error executing ${platform} scripts\n`);
-            process.stderr.write(err);
-        } else {
-            process.stdout.write(
-                `npmcs: succesfully executed ${platform} scripts in mode ${mode}`
-            );
-        }
-        process.exit();
-    });
+    return qs + pkgJson.scripts[commandToRun];
 }
 
-run(
-    overridePlatform && npmcsScript.scripts[overridePlatform] ?
-    npmcsScript.scripts[overridePlatform] :
-    process.platform === "win32" && npmcsScript.scripts.win ?
-    npmcsScript.scripts.win :
-    npmcsScript.scripts.nix ? npmcsScript.scripts.nix : null
-);
+exec(buildCommand(parseArgs()), function(err) {
+    pkgJson.scripts = scriptsBefore;
+    writePackageJsonFile(pkgJson);
+    if (err) {
+        process.stderr.write(`npmcs: error executing ${platform} scripts\n`);
+        process.stderr.write(err);
+    } else {
+        process.stdout.write(
+            `npmcs: succesfully executed ${platform} scripts in mode ${mode}`
+        );
+    }
+    process.exit();
+});
+
+module.exports = buildCommand;

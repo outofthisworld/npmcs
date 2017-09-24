@@ -40,7 +40,7 @@ function buildEnvironmentalScript(obj) {
  * 
  * @param {any} scripts 
  */
-function buildCommand(options) {
+module.exports = function(options) {
 
     if (!options) {
         throw new Error('Error no options provided');

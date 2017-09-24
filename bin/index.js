@@ -46,7 +46,7 @@ overridePlatform = overridePlatform === 'production' || overridePlatform === 'de
             scriptsBefore[key] = pkgJson.scripts[key];
         }
 
-        for (key in scripts[platform]) {
+        for (key in scripts) {
             pkgJson.scripts[key] = scripts[key];
         }
 
@@ -63,9 +63,9 @@ overridePlatform = overridePlatform === 'production' || overridePlatform === 'de
             }
             return qs;
         })(npmcsScript['env'] ?
-            npmcsScript['env'][platform + '-' + mode] ||
+            npmcsScript['env'][overridePlatform + '-' + mode] ||
             npmcsScript['env'][os + '-' + mode] ||
-            npmcsScript['env'][platform] ||
+            npmcsScript['env'][overridePlatform] ||
             npmcsScript['env'][os] ||
             npmcsScript['env'] : null
         );

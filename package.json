@@ -1,15 +1,16 @@
 {
     "name": "npmcs",
-    "version": "1.0.2",
+    "version": "1.0.7",
     "description": "Segregrate your npm scripts for windows and linux and run with one command.",
     "main": "./bin/index.js",
     "bin": {
         "npmcs": "./bin/index.js"
     },
-    "scripts": {
-        "start": "cross-script"
-    },
     "author": "outofthisworldworld",
     "license": "ISC",
-    "dependencies": {}
+    "dependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/outofthisworld/npmcs"
+    }
 }

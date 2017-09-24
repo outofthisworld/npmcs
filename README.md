@@ -6,7 +6,7 @@ Furthermore, because scripts are defined in a .js file rather than .json, script
 making it easier to work with.
 
 With npmcs, you define an npmcs-scripts.js file in the root directory of your application:
-```
+```javascript
 //npmcs-scripts.js
 module.exports = {
 	scripts: {
@@ -36,6 +36,16 @@ module.exports = {
 }
  ``` 
 
+ If installing npmcs via dev dependencies, the scripts portion of package.json will end up looking
+ like this:
+
+ ```javascript
+"scripts": {
+    //Tell npmcs to run the "start" script specified in npmcs-scripts.js
+    "start": "node node_modules/npmcs/bin start"
+}
+```
+
 # Installation
 
 Installation as a dev dependency (recommended):
@@ -46,6 +56,40 @@ alternatively npmcs can be installed globablly:
 
 `npm install -g npmcs`
 
+# Installation quickstart
+
+Create a new file name npmcs-scripts.js in the root of your directory and paste the following:
+
+```javascript
+module.exports = {
+	scripts: {
+		win: {
+			start: 'node src/app.js',
+		},
+		nix: {
+			start: 'node src/app.js',
+		}
+	},
+	env: {
+		win: {
+			NODE_ENV: 'development'
+		},
+		nix: {
+			NODE_ENV: 'development'
+		}
+	}
+};
+```
+
+Your package.json file should then look like the following:
+
+```javascript
+"scripts": {
+    "start": "node node_modules/npmcs/bin start"
+}
+```
+
+
 # environment
  npmcs also allows you to define environmental variables in a cross platform way by specifying "env" within the scripts portion of your package.json file. 
  
@@ -53,7 +97,7 @@ alternatively npmcs can be installed globablly:
  to split setting environmental variables between the script commands and the env setting.
 
  The following script sets the NODE_ENV environment variable no matter if you're running on windows or linux/unix.
- ```
+ ```javascript
 module.exports = {
     env: {
          NODE_ENV: "development"
@@ -63,7 +107,7 @@ module.exports = {
 
  This can be further refined by setting environmental variables based on the running platform:
 
-  ```
+```javascript
 module.exports = {
     env: {
 		/* Windows environmental variables */
@@ -84,7 +128,7 @@ module.exports = {
  npcms also lets you define environmental variables based on if you're running in development or production mode.
  To achieve this, you append -production or -development to the entries within the env.
 
-```
+```javascript
 module.exports =  {
     env: {
         win-production:{
@@ -111,4 +155,21 @@ module.exports =  {
 
  or similarily:
 
- ```node node_modules/npmcs/bin [start] development```
+ ```node node_modules/npmcs/bin [start] production```
+
+ and a corresponding package.json may look like this:
+
+ ```javascript
+"scripts": {
+    //Tell npmcs to run the "start" script for the current platform and set environmental variables from 
+    //[platform]-development
+    "start": "node node_modules/npmcs/bin start development"
+}
+```
+
+
+# Change log
+
+[x] v1.0.3 updated to work with npmcs-scripts.js file rather than package.json.
+[x] v1.0.5 minor changes and updates to readme.
+[x] v1.0.7 quick fixes.

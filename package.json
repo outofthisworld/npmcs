@@ -13,6 +13,9 @@
         "type": "git",
         "url": "https://github.com/outofthisworld/npmcs"
     },
+    "scripts": {
+        "test": "mocha"
+    },
     "keywords": [
         "npmcs",
         "cross platform",
@@ -25,5 +28,8 @@
         "variables",
         "linux",
         "windows"
-    ]
+    ],
+    "devDependencies": {
+        "mocha": "^3.5.3"
+    }
 }

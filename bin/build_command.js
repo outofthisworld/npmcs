@@ -41,36 +41,25 @@ function buildEnvironmentalScript(obj) {
  * @param {any} scripts 
  */
 module.exports = function(options) {
-
     if (!options) {
         throw new Error('Error no options provided');
         return;
     }
 
-    let pkgJson = options.pkgJson;
     let npmcsScript = options.npmcsScript;
     let mode = options.mode;
     let customPlatform = options.customPlatform;
     let commandToRun = options.commandToRun;
     let err;
 
-    if (!pkgJson) {
-        err = "npmcs: package.json file was not specified.";
-    }
-
     if (!npmcsScript) {
         err = "npmcs: npmcs-scripts.js file was not specified.";
     }
 
-    pkgJson.scripts = pkgJson.scripts || {};
     npmcsScript.scripts = npmcsScript.scripts || {};
 
     if (!commandToRun) {
         err = 'npmcs: no command to run specified';
-    }
-
-    if (!commandToRun in npmcsScript.scripts) {
-        err = `npmcs: could not locate ${commandToRun} in npmcs-scripts.js file.`;
     }
 
     if (err) {
@@ -82,11 +71,25 @@ module.exports = function(options) {
 
     let os = getPlatform();
 
-    assign(scriptsBefore, pkgJson.scripts);
-    assign(pkgJson.scripts, npmcsScript.scripts[customPlatform || os]);
+    const scripts = npmcsScript.scripts[customPlatform || os] || npmcsScript.scripts;
 
-    fs.writeFileSync("./package.json", JSON.stringify(pkgJson, null, 4));
+    if (!commandToRun in npmcsScript.scripts) {
+        err = `npmcs: could not locate ${commandToRun} in npmcs-scripts.js file.`;
+    }
 
+    const scriptCommand = scripts[commandToRun];
+
+    let match;
+    while (true) {
+        let r = /(npm\s+run\s+)([a-zA-Z1-9]*)/g;
+        match = r.exec(s);
+        if (match == null) break;
+        let scriptToReplace = match[2];
+        if (!scriptToReplace in scripts) {
+            throw new Error(`Invalid command ${scriptToReplace} does not exist in npmcs-scripts.js, cannot do npm run ${scriptToReplace}`)
+        }
+        scriptCommand = scriptCommand.replace(match[0], scripts[scriptToReplace])
+    }
 
     let qs = buildEnvironmentalScript(
         npmcsScript["env"] ?
@@ -98,8 +101,5 @@ module.exports = function(options) {
         null
     );
 
-    return {
-        originalPkgJson: scriptsBefore,
-        qs: qs + pkgJson.scripts[commandToRun]
-    }
+    return qs;
 }

@@ -79,12 +79,14 @@ module.exports = function(options) {
 
     const scriptsBefore = {};
 
+
+    let os = getPlatform();
+
     assign(scriptsBefore, pkgJson.scripts);
-    assign(pkgJson.scripts, npmcsScript.scripts);
+    assign(pkgJson.scripts, npmcsScript.scripts[customPlatform || os]);
 
     fs.writeFileSync("./package.json", JSON.stringify(pkgJson, null, 4));
 
-    let os = getPlatform();
 
     let qs = buildEnvironmentalScript(
         npmcsScript["env"] ?

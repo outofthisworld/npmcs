@@ -22,6 +22,9 @@ module.exports = function() {
 
     let built;
 
+    console.log('building command with')
+    console.log(args);
+
     built = buildCommand(args);
 
 

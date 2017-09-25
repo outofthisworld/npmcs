@@ -44,6 +44,7 @@ module.exports = function(options) {
 
     if (!options) {
         throw new Error('Error no options provided');
+        return;
     }
 
     let pkgJson = options.pkgJson;

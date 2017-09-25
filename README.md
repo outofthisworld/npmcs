@@ -131,17 +131,17 @@ module.exports = {
 ```javascript
 module.exports =  {
     env: {
-        win-production:{
+        'win-production':{
             NODE_ENV: "production"
         },
-        win-development:{
+        'win-development':{
             NODE_ENV: "development"
         },
-        nix-production:{
+        'nix-production':{
             NODE_ENV: "development",
             ONLY_ON_NIX:"SomethingNixSpecific"
         },
-        nix-development:{
+        'nix-development':{
             NODE_ENV: "development",
             ONLY_ON_NIX:"SomethingNixSpecific"
         }

@@ -1,10 +1,12 @@
+const path = require('path');
+
 /**
  * Reads npmcs-scripts.js file from process.cwd()
  * 
  * @returns result of reading npmcs-scripts.js file
  */
 function readNpmcsScripts() {
-    return require("./npmcs-scripts");
+    return require(path.join(process.cwd(), "npmcs-scripts"));
 }
 
 /**
@@ -13,7 +15,7 @@ function readNpmcsScripts() {
  * @returns result of reading package.json file
  */
 function readPackageJsonFile() {
-    return require("./package");
+    return require(path.join(process.cwd(), "package"));
 }
 
 module.exports = function() {
@@ -21,6 +23,6 @@ module.exports = function() {
     let pkgJson = readPackageJsonFile();
     return {
         pkgJson,
-        npmcs
+        npmcsScript
     }
 }

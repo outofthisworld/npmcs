@@ -3,19 +3,24 @@
  * 
  * @returns 
  */
-module.exports = function() {
-    let commandToRun = process.argv[2];
+module.exports = function(args) {
 
-    if (!commandToRun) {
-        throw new Error("npmcs: entry script must be supplied as an argument");
+    if (!Array.isArray(args)) {
+        throw new Error('supplied args must be an array');
     }
 
-    let customPlatform = process.argv[3];
+    let commandToRun = args[2];
+
+    if (!commandToRun) {
+        throw new Error("npmcs: entry command (e.g start) must be supplied as an argument");
+    }
+
+    let customPlatform = args[3];
 
     let mode =
         customPlatform === "production" ?
         "production" :
-        customPlatform === "development" ? "development" : process.argv[4];
+        customPlatform === "development" ? "development" : args[4];
 
     customPlatform =
         customPlatform === "production" || customPlatform === "development" ?

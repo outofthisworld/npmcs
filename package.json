@@ -1,6 +1,6 @@
 {
     "name": "npmcs",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "description": "Segregrate your npm scripts for windows and linux and run with one command.",
     "main": "./bin/index.js",
     "bin": {
@@ -14,7 +14,8 @@
         "url": "https://github.com/outofthisworld/npmcs"
     },
     "scripts": {
-        "test": "mocha"
+        "test": "mocha",
+        "start": "node src/app.js"
     },
     "keywords": [
         "npmcs",

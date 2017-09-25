@@ -9,33 +9,21 @@ module.exports = function() {
 
     let err;
     let scripts;
-    try {
-        scripts = readScripts();
-    } catch (err) {
-        process.stderr.write(err.message);
-        throw err;
-        process.exit();
-    }
+
+    scripts = readScripts();
+
 
     let args;
-    try {
-        args = parseArgs();
-    } catch (err) {
-        process.stderr.write(err.message);
-        throw err;
-        process.exit();
-    }
+
+    args = parseArgs(process.argv);
+
 
     assign(args, scripts);
 
     let built;
-    try {
-        built = buildCommand(args);
-    } catch (err) {
-        process.stderr.write(err.message);
-        throw err;
-        process.exit();
-    }
+
+    built = buildCommand(args);
+
 
     exec(built.qs, function(err) {
         const pkgJson = args.pkgJson;

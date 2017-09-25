@@ -1,5 +1,5 @@
 const fs = require("fs");
-
+const assign = require('./assign');
 
 /**
  * Gets the current platform in a simplified manner.
@@ -65,13 +65,16 @@ module.exports = function(options) {
     pkgJson.scripts = pkgJson.scripts || {};
     npmcsScript.scripts = npmcsScript.scripts || {};
 
+    if (!commandToRun) {
+        err = 'npmcs: no command to run specified';
+    }
+
     if (!commandToRun in npmcsScript.scripts) {
         err = `npmcs: could not locate ${commandToRun} in npmcs-scripts.js file.`;
     }
 
     if (err) {
         throw new Error(err);
-        process.exit();
     }
 
     const scriptsBefore = {};

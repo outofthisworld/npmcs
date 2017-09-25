@@ -75,7 +75,7 @@ describe('build command tests', function() {
     it('throws an error when npmcsScript or pkgJson is not specified', function() {
         return assert.throws(wrap(buildCommand, {
             commandToRun: 'start'
-        }))
+        }), Error)
     })
 
     it('throws an error when command to run is not specified', function() {
@@ -84,17 +84,88 @@ describe('build command tests', function() {
         return assert.throws(wrap(buildCommand, {
             npmcsScript,
             pkgJson
-        }))
+        }), Error)
     })
 
     it('does not throw given pkgJson,npmcsScript and command to run.', function() {
         const pkgJson = require('../package');
         const npmcsScript = require('../npmcs-scripts')
         const commandToRun = 'start';
-        return assert.doesNotThrow(wrap(buildCommand, {
+        npmcsScript.scripts = {
+            start: ''
+        }
+
+        assert.doesNotThrow(wrap(buildCommand, {
             npmcsScript,
             pkgJson,
             commandToRun
-        }))
+        }), Error);
+    })
+
+    it('returns correct command string', function() {
+        const pkgJson = require('../package');
+        const npmcsScript = require('../npmcs-scripts')
+        const commandToRun = 'start';
+
+        npmcsScript.scripts = {
+            start: ''
+        }
+
+        const result = buildCommand({
+            npmcsScript,
+            pkgJson,
+            commandToRun
+        })
+
+        assert.equal(result.qs, '')
+
+    })
+
+    it('returns correct command string with environmental variables', function() {
+        const pkgJson = require('../package');
+        const npmcsScript = require('../npmcs-scripts')
+        const commandToRun = 'start';
+
+        npmcsScript.scripts = {
+            start: 'node src/app.js'
+        }
+
+        npmcsScript.env = {
+            NODE_ENV: 'development'
+        }
+
+        const result = buildCommand({
+            npmcsScript,
+            pkgJson,
+            commandToRun
+        })
+
+        const cmd = process.platform === 'win32' ? 'set ' : 'export ';
+        assert.equal(result.qs, cmd + "NODE_ENV=development&&node src/app.js")
+
+    })
+
+
+    it('returns original package.json scripts', function() {
+        const pkgJson = require('../package');
+        const npmcsScript = require('../npmcs-scripts')
+        const commandToRun = 'start';
+
+        npmcsScript.scripts = {
+            start: 'node src/app.js'
+        }
+
+        npmcsScript.env = {
+            NODE_ENV: 'development'
+        }
+
+        const result = buildCommand({
+            npmcsScript,
+            pkgJson,
+            commandToRun
+        })
+
+        const cmd = process.platform === 'win32' ? 'set ' : 'export ';
+        assert.deepEqual(result.originalPkgJson, pkgJson.scripts)
     })
 })

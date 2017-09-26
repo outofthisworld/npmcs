@@ -5,6 +5,17 @@ enabling you to run scripts without worrying about ensuring a script will run on
 Furthermore, because scripts are defined in a .js file rather than .json, scripts can be commented
 making it easier to work with.
 
+# Installation
+
+Installation as a dev dependency (recommended):
+
+`npm install --save-dev npmcs`
+
+alternatively npmcs can be installed globablly:
+
+`npm install -g npmcs`
+
+
 With npmcs, you define an npmcs-scripts.js file in the root directory of your application:
 ```javascript
 //npmcs-scripts.js
@@ -36,9 +47,9 @@ module.exports = {
 }
  ``` 
 
- If installing npmcs via dev dependencies, the scripts portion of package.json will end up looking
- like this:
-
+ Calling npmcs will then invoke the right command depnding on the current operating system. 
+ 
+A package.json using npmcs may end up looking like the following if installed via --save-dev
  ```javascript
 "scripts": {
     //Tell npmcs to run the "start" script specified in npmcs-scripts.js
@@ -46,15 +57,36 @@ module.exports = {
 }
 ```
 
-# Installation
+With npmcs it is also possible to define scripts that are shared across operating systems,
+thus the example shown earlier would become:
 
-Installation as a dev dependency (recommended):
-
-`npm install --save-dev npmcs`
-
-alternatively npmcs can be installed globablly:
-
-`npm install -g npmcs`
+```javascript
+//npmcs-scripts.js
+module.exports = {
+	scripts: {
+		//nodemon, build and test commands same regardless of running on windows/linux (remove duplication)
+		nodemon: 'nodemon --debug src/app.js',
+		build: 'start webpack -d --watch',
+		test: 'echo "Error: no test specified" && exit 1'
+		/*
+            Windows scripts, run on a windows environment
+        */
+		win: {
+			start: 'start npm run dev',
+			dev: 'SET NODE_ENV=development && npm run build && npm run nodemon',
+			prod: 'SET NODE_ENV=production node src/app.js',
+		},
+		/*
+            Unix scripts, run on a unix environment
+        */
+		nix: {
+			start: 'npm run dev',
+			dev: 'export NODE_ENV=development && npm run build && npm run nodemon',
+			prod: 'export NODE_ENV=production node src/app.js',
+		},
+	}
+}
+ ``` 
 
 # Installation quickstart
 

@@ -1,4 +1,4 @@
-const fs = require("fs");
+const fs = require('fs');
 const assign = require('./assign');
 
 /**
@@ -7,7 +7,7 @@ const assign = require('./assign');
  * @returns 
  */
 function getPlatform() {
-    return process.platform === "win32" ? "win" : "nix";
+    return process.platform === 'win32' ? 'win' : 'nix';
 }
 
 /**
@@ -16,7 +16,7 @@ function getPlatform() {
  * @returns 
  */
 function getOsEnvironmentalKeyword() {
-    return getPlatform() == "win" ? "set " : "export ";
+    return getPlatform() == 'win' ? 'set ' : 'export ';
 }
 
 /**
@@ -26,11 +26,11 @@ function getOsEnvironmentalKeyword() {
  * @returns 
  */
 function buildEnvironmentalScript(obj) {
-    let qs = "";
+    let qs = '';
     let cmd = getOsEnvironmentalKeyword();
     if (!obj) return qs;
     for (key in obj) {
-        qs += cmd + key + "=" + obj[key] + "&&";
+        qs += cmd + key + '=' + obj[key] + '&&';
     }
     return qs;
 }
@@ -53,7 +53,7 @@ module.exports = function(options) {
     let err;
 
     if (!npmcsScript) {
-        err = "npmcs: npmcs-scripts.js file was not specified.";
+        err = 'npmcs: npmcs-scripts.js file was not specified.';
     }
 
     npmcsScript.scripts = npmcsScript.scripts || {};
@@ -66,19 +66,15 @@ module.exports = function(options) {
         throw new Error(err);
     }
 
-    const scriptsBefore = {};
 
+    const scripts = npmcsScript.scripts[customPlatform || getPlatform()] || npmcsScript.scripts;
 
-    let os = getPlatform();
-
-    const scripts = npmcsScript.scripts[customPlatform || os] || npmcsScript.scripts;
-
-
-    if (!commandToRun in npmcsScript.scripts) {
-        throw new Error(`npmcs: could not locate ${commandToRun} in npmcs-scripts.js file.\n`);
-    }
 
     let scriptCommand = scripts[commandToRun];
+
+    if (!scriptCommand) {
+        throw new Error(`Could not locate ${commandToRun} in npmcs-scripts.js`);
+    }
 
     let match;
     while (true) {
@@ -86,19 +82,21 @@ module.exports = function(options) {
         match = r.exec(scriptCommand);
         if (match == null) break;
         let scriptToReplace = match[2];
-        if (!scriptToReplace in scripts) {
+        let lookUp = scripts;
+        lookUp = lookUp && scriptToReplace in lookUp ? lookUp : npmcsScript.scripts;
+        if (!lookUp || !(scriptToReplace in lookUp)) {
             throw new Error(`Invalid command ${scriptToReplace} does not exist in npmcs-scripts.js, cannot do npm run ${scriptToReplace}\n`)
         }
-        scriptCommand = scriptCommand.replace(match[0], scripts[scriptToReplace])
+        scriptCommand = scriptCommand.replace(match[0], lookUp[scriptToReplace])
     }
 
     let qs = buildEnvironmentalScript(
-        npmcsScript["env"] ?
-        npmcsScript["env"][customPlatform + "-" + mode] ||
-        npmcsScript["env"][os + "-" + mode] ||
-        npmcsScript["env"][customPlatform] ||
-        npmcsScript["env"][os] ||
-        npmcsScript["env"] :
+        npmcsScript['env'] ?
+        npmcsScript['env'][customPlatform + '-' + mode] ||
+        npmcsScript['env'][getPlatform() + '-' + mode] ||
+        npmcsScript['env'][customPlatform] ||
+        npmcsScript['env'][getPlatform()] ||
+        npmcsScript['env'] :
         null
     );
 

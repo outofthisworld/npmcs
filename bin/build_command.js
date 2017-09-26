@@ -73,20 +73,21 @@ module.exports = function(options) {
 
     const scripts = npmcsScript.scripts[customPlatform || os] || npmcsScript.scripts;
 
+
     if (!commandToRun in npmcsScript.scripts) {
-        err = `npmcs: could not locate ${commandToRun} in npmcs-scripts.js file.`;
+        throw new Error(`npmcs: could not locate ${commandToRun} in npmcs-scripts.js file.\n`);
     }
 
-    const scriptCommand = scripts[commandToRun];
+    let scriptCommand = scripts[commandToRun];
 
     let match;
     while (true) {
         let r = /(npm\s+run\s+)([a-zA-Z1-9]*)/g;
-        match = r.exec(s);
+        match = r.exec(scriptCommand);
         if (match == null) break;
         let scriptToReplace = match[2];
         if (!scriptToReplace in scripts) {
-            throw new Error(`Invalid command ${scriptToReplace} does not exist in npmcs-scripts.js, cannot do npm run ${scriptToReplace}`)
+            throw new Error(`Invalid command ${scriptToReplace} does not exist in npmcs-scripts.js, cannot do npm run ${scriptToReplace}\n`)
         }
         scriptCommand = scriptCommand.replace(match[0], scripts[scriptToReplace])
     }
@@ -101,5 +102,7 @@ module.exports = function(options) {
         null
     );
 
-    return qs;
+
+    process.stdout.write(`npmcs running command: ${qs + scriptCommand}\n`);
+    return qs + scriptCommand;
 }

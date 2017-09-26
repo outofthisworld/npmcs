@@ -1,6 +1,6 @@
 {
     "name": "npmcs",
-    "version": "1.0.12",
+    "version": "1.1.14",
     "description": "Segregrate your npm scripts for windows and linux and run with one command.",
     "main": "./bin/index.js",
     "bin": {

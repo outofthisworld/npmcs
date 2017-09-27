@@ -2,6 +2,7 @@
 
 
 [![Build Status](https://travis-ci.org/outofthisworld/npmcs.svg?branch=master)](https://travis-ci.org/outofthisworld/npmcs)
+[![Coverage Status](https://coveralls.io/repos/github/outofthisworld/npmcs/badge.svg?branch=master)](https://coveralls.io/github/outofthisworld/npmcs?branch=master)
 
 npmcs is a tool for easily defining scripts that run depending on the host operating systems platform,
 enabling you to run scripts without worrying about ensuring a script will run on both windows and linux. 

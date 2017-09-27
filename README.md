@@ -1,5 +1,6 @@
 # npmcs
 
+
 [![Build Status](https://travis-ci.org/outofthisworld/npmcs.svg?branch=master)](https://travis-ci.org/outofthisworld/npmcs)
 
 npmcs is a tool for easily defining scripts that run depending on the host operating systems platform,

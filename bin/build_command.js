@@ -31,7 +31,7 @@ const buildEnvironmentalScript = (obj, outer) => {
   obj = obj || {}
   obj = Object.assign(outer, obj)
 
-  for (key in obj) {
+  for (let key in obj) {
     if (typeof obj[key] === 'string') { qs += cmd + key + '=' + obj[key] + '&&' }
   }
   return qs

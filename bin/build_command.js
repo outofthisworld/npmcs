@@ -9,8 +9,7 @@ function getPlatform () {
 }
 
 function isUsingPowerShell () {
-  return process.env.PATHEXT && process.env.PATHEXT.toLowerCase().includes('.cpl') &&
-  process.env['PROMPT']
+  return process.env.PATHEXT && process.env.PATHEXT.toLowerCase().includes('.cpl')
 }
 
 /**

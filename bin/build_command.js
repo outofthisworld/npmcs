@@ -8,13 +8,18 @@ function getPlatform () {
   return /^win/.test(process.platform) ? 'win' : 'nix'
 }
 
+function isUsingPowerShell () {
+  return process.env.PATHEXT && process.env.PATHEXT.toLowerCase().includes('.cpl') &&
+  process.env['PROMPT']
+}
+
 /**
  * Finds the keyword for setting environmental varaiable in the current os.
  * 
  * @returns 
  */
 const getOsEnvironmentalKeyword = () => {
-  return getPlatform() === 'win' ? 'set ' : 'export '
+  return getPlatform() === 'win' ? !isUsingPowerShell() ? 'set ' : '$env:' : 'export '
 }
 
 /**

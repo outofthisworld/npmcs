@@ -90,18 +90,20 @@ module.exports = function (options) {
     throw new Error(`Could not locate ${commandToRun} in npmcs-scripts.js`)
   }
 
-  return [findNpmRunMatches(scriptCommand).reduce((last, match) => {
-    let lookUp = scripts
-    let scriptToReplace = match[2]
+  return [(function buildCommandLiteral (command) {
+    return findNpmRunMatches(command).reduce((last, match) => {
+      let lookUp = scripts
+      let scriptToReplace = match[2]
 
-    lookUp = lookUp && scriptToReplace in lookUp ? lookUp : npmcsScript.scripts
+      lookUp = lookUp && scriptToReplace in lookUp ? lookUp : npmcsScript.scripts
 
-    if (!lookUp || !(scriptToReplace in lookUp)) {
-      throw new Error(`Invalid command ${scriptToReplace} does not exist in npmcs-scripts.js, cannot do npm run ${scriptToReplace}\n`)
-    }
+      if (!lookUp || !(scriptToReplace in lookUp)) {
+        throw new Error(`Invalid command ${scriptToReplace} does not exist in npmcs-scripts.js, cannot do npm run ${scriptToReplace}\n`)
+      }
 
-    return last.replace(match[0], lookUp[scriptToReplace])
-  }, scriptCommand)].map((commandString) => {
+      return last.replace(match[0], buildCommandLiteral(lookUp[scriptToReplace]))
+    }, command)
+  })(scriptCommand)].map((commandString) => {
     let finalCmd = buildEnvironmentalScript(
       npmcsScript['env']
         ? npmcsScript['env'][customPlatform + '-' + mode] ||

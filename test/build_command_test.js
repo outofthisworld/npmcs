@@ -115,4 +115,35 @@ describe('build command tests', function () {
     assert.equal(result, process.platform === 'win32'
       ? cmd + 'NODE_ENV=production&&node src/app.js' : cmd + 'NODE_ENV=development&&node src/app.js')
   })
+
+  it('replaces npm run option with command', function () {
+    let npmcsScript = {}
+    npmcsScript.scripts = {
+      start: 'npm run hi',
+      hi: 'hello'
+    }
+
+    const result = buildCommand({
+      npmcsScript,
+      commandToRun: 'start'
+    })
+
+    assert.equal(result, 'hello')
+  })
+
+  it('replaces two npm run options with command', function () {
+    let npmcsScript = {}
+    npmcsScript.scripts = {
+      start: 'npm run hi',
+      hi: 'npm run other',
+      other: 'other'
+    }
+
+    const result = buildCommand({
+      npmcsScript,
+      commandToRun: 'start'
+    })
+
+    assert.equal(result, 'other')
+  })
 })

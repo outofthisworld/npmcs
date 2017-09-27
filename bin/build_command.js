@@ -5,7 +5,7 @@
  * @returns 
  */
 function getPlatform () {
-  return process.platform === 'win32' ? 'win' : 'nix'
+  return /^win/.test(process.platform) ? 'win' : 'nix'
 }
 
 /**

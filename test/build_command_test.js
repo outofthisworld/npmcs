@@ -94,7 +94,11 @@ describe('build command tests', function () {
       commandToRun
     })
 
-    const cmd = process.platform === 'win32' ? 'set ' : 'export '
+    function isUsingPowerShell () {
+      return process.env.PATHEXT && process.env.PATHEXT.toLowerCase().includes('.cpl') &&
+      process.env['PROMPT']
+    }
+    const cmd = process.platform === 'win32' ? !isUsingPowerShell() ? 'set ' : '$env:' : 'export '
     assert.equal(result, cmd + 'NODE_ENV=development&&node src/app.js')
 
     npmcsScript.env = {

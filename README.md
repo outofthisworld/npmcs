@@ -9,6 +9,9 @@ enabling you to run scripts without worrying about ensuring a script will run on
 Furthermore, because scripts are defined in a .js file rather than .json, scripts can be commented
 making it easier to work with.
 
+npmcs also allows you to quickly set environmental variables and have them change across different operating systems. If you're running windows npmcs will use `set ENV_VAR=value` for command prompt or `$env:ENV_VAR=value`
+if using powershell. If you are on a unix based os `export ENV_VAR=value` will be used to set environmental variables.
+
 # Installation
 
 Installation as a dev dependency (recommended):
@@ -220,6 +223,4 @@ module.exports =  {
 
 # Change log
 
-[x] v1.0.3 updated to work with npmcs-scripts.js file rather than package.json.
-[x] v1.0.5 minor changes and updates to readme.
-[x] v1.0.7 quick fixes.
+[x] v1.3.5 added powershell support.

@@ -223,4 +223,5 @@ module.exports =  {
 
 # Change log
 
-[x] v1.3.5 added powershell support.
+[x] v1.4.1 Supports powershell, now cycles through scripts recursively so npm run
+ can be used anywhere. Updated readme.

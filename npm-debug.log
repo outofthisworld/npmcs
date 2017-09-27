@@ -1,0 +1,134 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/bin/node', '/usr/local/bin/npm', 'publish' ]
+2 info using npm@3.10.10
+3 info using node@v6.11.0
+4 verbose publish [ '.' ]
+5 silly cache add args [ '.', null ]
+6 verbose cache add spec .
+7 silly cache add parsed spec Result {
+7 silly cache add   raw: '.',
+7 silly cache add   scope: null,
+7 silly cache add   escapedName: null,
+7 silly cache add   name: null,
+7 silly cache add   rawSpec: '.',
+7 silly cache add   spec: '/Users/morganmacfadyen/Desktop/Dale/vsproject/npmcs',
+7 silly cache add   type: 'directory' }
+8 verbose addLocalDirectory /Users/morganmacfadyen/.npm/npmcs/1.3.2/package.tgz not in flight; packing
+9 verbose correctMkdir /Users/morganmacfadyen/.npm correctMkdir not in flight; initializing
+10 info lifecycle npmcs@1.3.2~prepublish: npmcs@1.3.2
+11 silly lifecycle npmcs@1.3.2~prepublish: no script for prepublish, continuing
+12 verbose tar pack [ '/Users/morganmacfadyen/.npm/npmcs/1.3.2/package.tgz',
+12 verbose tar pack   '/Users/morganmacfadyen/Desktop/Dale/vsproject/npmcs' ]
+13 verbose tarball /Users/morganmacfadyen/.npm/npmcs/1.3.2/package.tgz
+14 verbose folder /Users/morganmacfadyen/Desktop/Dale/vsproject/npmcs
+15 verbose addLocalTarball adding from inside cache /Users/morganmacfadyen/.npm/npmcs/1.3.2/package.tgz
+16 verbose correctMkdir /Users/morganmacfadyen/.npm correctMkdir not in flight; initializing
+17 silly cache afterAdd npmcs@1.3.2
+18 verbose afterAdd /Users/morganmacfadyen/.npm/npmcs/1.3.2/package/package.json not in flight; writing
+19 verbose correctMkdir /Users/morganmacfadyen/.npm correctMkdir not in flight; initializing
+20 verbose afterAdd /Users/morganmacfadyen/.npm/npmcs/1.3.2/package/package.json written
+21 silly publish { name: 'npmcs',
+21 silly publish   version: '1.3.2',
+21 silly publish   description: 'Segregrate your npm scripts for windows and linux and run with one command.',
+21 silly publish   main: './bin/index.js',
+21 silly publish   bin: { npmcs: './bin/index.js' },
+21 silly publish   author: { name: 'outofthisworldworld' },
+21 silly publish   license: 'ISC',
+21 silly publish   dependencies: {},
+21 silly publish   repository:
+21 silly publish    { type: 'git',
+21 silly publish      url: 'git+https://github.com/outofthisworld/npmcs.git' },
+21 silly publish   scripts: { test: 'mocha', start: 'node src/app.js' },
+21 silly publish   keywords:
+21 silly publish    [ 'npmcs',
+21 silly publish      'cross platform',
+21 silly publish      'script',
+21 silly publish      'scripts',
+21 silly publish      'command',
+21 silly publish      'commands',
+21 silly publish      'environment',
+21 silly publish      'environmental',
+21 silly publish      'variables',
+21 silly publish      'linux',
+21 silly publish      'windows',
+21 silly publish      'build',
+21 silly publish      'build tool',
+21 silly publish      'grunt',
+21 silly publish      'gulp' ],
+21 silly publish   devDependencies:
+21 silly publish    { coveralls: '^2.13.1',
+21 silly publish      eslint: '^4.7.2',
+21 silly publish      'eslint-config-standard': '^10.2.1',
+21 silly publish      'eslint-plugin-import': '^2.7.0',
+21 silly publish      'eslint-plugin-node': '^5.1.1',
+21 silly publish      'eslint-plugin-promise': '^3.5.0',
+21 silly publish      'eslint-plugin-standard': '^3.0.1',
+21 silly publish      istanbul: '^0.4.5',
+21 silly publish      mocha: '^3.5.3' },
+21 silly publish   readme: '# npmcs\n\n\n[![Build Status](https://travis-ci.org/outofthisworld/npmcs.svg?branch=master)](https://travis-ci.org/outofthisworld/npmcs)\n[![Coverage Status](https://coveralls.io/repos/github/outofthisworld/npmcs/badge.svg?branch=master)](https://coveralls.io/github/outofthisworld/npmcs?branch=master)\n\nnpmcs is a tool for easily defining scripts that run depending on the host operating systems platform,\nenabling you to run scripts without worrying about ensuring a script will run on both windows and linux. \nFurthermore, because scripts are defined in a .js file rather than .json, scripts can be commented\nmaking it easier to work with.\n\n# Installation\n\nInstallation as a dev dependency (recommended):\n\n`npm install --save-dev npmcs`\n\nalternatively npmcs can be installed globablly:\n\n`npm install -g npmcs`\n\n\nWith npmcs, you define an npmcs-scripts.js file in the root directory of your application:\n```javascript\n//npmcs-scripts.js\nmodule.exports = {\n\tscripts: {\n\t\t/*\n            Windows scripts, run on a windows environment\n        */\n\t\twin: {\n\t\t\tstart: \'start npm run dev\',\n\t\t\tdev: \'SET NODE_ENV=development && npm run build && npm run nodemon\',\n\t\t\tprod: \'SET NODE_ENV=production node src/app.js\',\n\t\t\tnodemon: \'nodemon --debug src/app.js\',\n\t\t\tbuild: \'start webpack -d --watch\',\n\t\t\ttest: \'echo "Error: no test specified" && exit 1\'\n\t\t},\n\t\t/*\n            Unix scripts, run on a unix environment\n        */\n\t\tnix: {\n\t\t\tstart: \'npm run dev\',\n\t\t\tdev: \'export NODE_ENV=development && npm run build && npm run nodemon\',\n\t\t\tprod: \'export NODE_ENV=production node src/app.js\',\n\t\t\tnodemon: \'nodemon --debug src/app.js\',\n\t\t\tbuild: \'webpack -d --watch\',\n\t\t\ttest: \'echo "Error: no test specified" && exit 1\'\n\t\t}\n\t}\n}\n ``` \n\n Calling npmcs will then invoke the right command depnding on the current operating system. \n \nA package.json using npmcs may end up looking like the following if installed via --save-dev\n ```javascript\n"scripts": {\n    //Tell npmcs to run the "start" script specified in npmcs-scripts.js\n    "start": "node node_modules/npmcs/bin start"\n}\n```\n\nWith npmcs it is also possible to define scripts that are shared across operating systems,\nthus the example shown earlier would become:\n\n```javascript\n//npmcs-scripts.js\nmodule.exports = {\n\tscripts: {\n\t\t//nodemon, build and test commands same regardless of running on windows/linux (remove duplication)\n\t\tnodemon: \'nodemon --debug src/app.js\',\n\t\tbuild: \'start webpack -d --watch\',\n\t\ttest: \'echo "Error: no test specified" && exit 1\'\n\t\t/*\n            Windows scripts, run on a windows environment\n        */\n\t\twin: {\n\t\t\tstart: \'start npm run dev\',\n\t\t\tdev: \'SET NODE_ENV=development && npm run build && npm run nodemon\',\n\t\t\tprod: \'SET NODE_ENV=production node src/app.js\',\n\t\t},\n\t\t/*\n            Unix scripts, run on a unix environment\n        */\n\t\tnix: {\n\t\t\tstart: \'npm run dev\',\n\t\t\tdev: \'export NODE_ENV=development && npm run build && npm run nodemon\',\n\t\t\tprod: \'export NODE_ENV=production node src/app.js\',\n\t\t},\n\t}\n}\n ``` \n\n# Installation quickstart\n\nCreate a new file name npmcs-scripts.js in the root of your directory and paste the following:\n\n```javascript\nmodule.exports = {\n\tscripts: {\n\t\twin: {\n\t\t\tstart: \'node src/app.js\',\n\t\t},\n\t\tnix: {\n\t\t\tstart: \'node src/app.js\',\n\t\t}\n\t},\n\tenv: {\n\t\twin: {\n\t\t\tNODE_ENV: \'development\'\n\t\t},\n\t\tnix: {\n\t\t\tNODE_ENV: \'development\'\n\t\t}\n\t}\n};\n```\n\nYour package.json file should then look like the following:\n\n```javascript\n"scripts": {\n    "start": "node node_modules/npmcs/bin start"\n}\n```\n\n\n# Environment\n\n npmcs also allows you to define environmental variables in a cross platform way by specifying "env" within the scripts portion of your package.json file. \n \n This will not override any environmental settings that may have been set in your commands making it perfectly safe\n to split setting environmental variables between the script commands and the env setting.\n\n The following script sets the NODE_ENV environment variable no matter if you\'re running on windows or linux/unix.\n ```javascript\nmodule.exports = {\n    env: {\n         NODE_ENV: "development"\n    }\n}\n ``` \n\n This can be further refined by setting environmental variables based on the running platform:\n\n```javascript\nmodule.exports = {\n    env: {\n\t\twin: {\n\t\t\tNODE_ENV: \'development\'\n\t\t},\n\t\tnix: {\n\t\t\tNODE_ENV: \'development\'\n\t\t}\n\t}\n}\n ``` \n\n npmcs will look for environmental variables for a specific platform first before defaulting to the outer env object to find environmental variables. Thus anything defined in env will be set on all os environments, unless it is overriden by something more specific. An example is shown below:\n\n ```javascript\nmodule.exports = {\n    env: {\n\t\tNODE_ENV: \'development\'\n\t\twin: {\n\t\t    NODE_ENV: \'production\'\n\t\t},\n\t\tnix: {\n\t\t    NIX_ENV: \'ImOnNix\'\n\t\t}\n\t}\n}\n ``` \nIn the example above, npmcs will set NODE_ENV to production on windows, but on nix will set it to development as nix does not override the NODE_ENV setting.\n\n\n npcms also lets you define environmental variables based on if you\'re running in development or production mode.\n To achieve this, you append -production or -development to the entries within the env.\n\n```javascript\nmodule.exports =  {\n    env: {\n        \'win-production\':{\n            NODE_ENV: "production"\n        },\n        \'win-development\':{\n            NODE_ENV: "development"\n        },\n        \'nix-production\':{\n            NODE_ENV: "development",\n            ONLY_ON_NIX:"SomethingNixSpecific"\n        },\n        \'nix-development\':{\n            NODE_ENV: "development",\n            ONLY_ON_NIX:"SomethingNixSpecific"\n        }\n    }\n}\n ``` \n\n For development/production to work you must provide npcms an argument specifying if youre running development or production, thus the command becomes:\n\n ```node node_modules/npmcs/bin [start] development```\n\n or similarily:\n\n ```node node_modules/npmcs/bin [start] production```\n\n and a corresponding package.json may look like this:\n\n ```javascript\n"scripts": {\n    //Tell npmcs to run the "start" script for the current platform and set environmental variables from \n    //[platform]-development\n    "start": "node node_modules/npmcs/bin start development"\n}\n```\n\n\n# Change log\n\n[x] v1.0.3 updated to work with npmcs-scripts.js file rather than package.json.\n[x] v1.0.5 minor changes and updates to readme.\n[x] v1.0.7 quick fixes.',
+21 silly publish   readmeFilename: 'README.md',
+21 silly publish   gitHead: 'a6477c3201db479b173d38aa5df183c85bf1a28b',
+21 silly publish   bugs: { url: 'https://github.com/outofthisworld/npmcs/issues' },
+21 silly publish   homepage: 'https://github.com/outofthisworld/npmcs#readme',
+21 silly publish   _id: 'npmcs@1.3.2',
+21 silly publish   _shasum: '26402df4c25b13a81f044a4b9695ada070257f0a',
+21 silly publish   _from: '.' }
+22 verbose getPublishConfig undefined
+23 silly mapToRegistry name npmcs
+24 silly mapToRegistry using default registry
+25 silly mapToRegistry registry https://registry.npmjs.org/
+26 silly mapToRegistry data Result {
+26 silly mapToRegistry   raw: 'npmcs',
+26 silly mapToRegistry   scope: null,
+26 silly mapToRegistry   escapedName: 'npmcs',
+26 silly mapToRegistry   name: 'npmcs',
+26 silly mapToRegistry   rawSpec: '',
+26 silly mapToRegistry   spec: 'latest',
+26 silly mapToRegistry   type: 'tag' }
+27 silly mapToRegistry uri https://registry.npmjs.org/npmcs
+28 verbose publish registryBase https://registry.npmjs.org/
+29 silly publish uploading /Users/morganmacfadyen/.npm/npmcs/1.3.2/package.tgz
+30 verbose request uri https://registry.npmjs.org/npmcs
+31 verbose request sending authorization for write operation
+32 info attempt registry request try #1 at 12:23:26 AM
+33 verbose request using bearer token for auth
+34 verbose request id e34afde1dfdb7ab9
+35 http request PUT https://registry.npmjs.org/npmcs
+36 http 403 https://registry.npmjs.org/npmcs
+37 verbose headers { 'content-type': 'application/json',
+37 verbose headers   'cache-control': 'max-age=300',
+37 verbose headers   'content-length': '91',
+37 verbose headers   'accept-ranges': 'bytes',
+37 verbose headers   date: 'Wed, 27 Sep 2017 11:23:27 GMT',
+37 verbose headers   via: '1.1 varnish',
+37 verbose headers   connection: 'keep-alive',
+37 verbose headers   'x-served-by': 'cache-akl1423-AKL',
+37 verbose headers   'x-cache': 'MISS',
+37 verbose headers   'x-cache-hits': '0',
+37 verbose headers   'x-timer': 'S1506511407.536151,VS0,VE658',
+37 verbose headers   vary: 'Accept-Encoding, Accept' }
+38 verbose request invalidating /Users/morganmacfadyen/.npm/registry.npmjs.org/npmcs on PUT
+39 error publish Failed PUT 403
+40 verbose stack Error: You cannot publish over the previously published version 1.3.2. : npmcs
+40 verbose stack     at makeError (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:302:12)
+40 verbose stack     at CachingRegistryClient.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:290:14)
+40 verbose stack     at Request._callback (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:210:14)
+40 verbose stack     at Request.self.callback (/usr/local/lib/node_modules/npm/node_modules/request/request.js:187:22)
+40 verbose stack     at emitTwo (events.js:106:13)
+40 verbose stack     at Request.emit (events.js:191:7)
+40 verbose stack     at Request.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1048:10)
+40 verbose stack     at emitOne (events.js:96:13)
+40 verbose stack     at Request.emit (events.js:188:7)
+40 verbose stack     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:969:12)
+41 verbose statusCode 403
+42 verbose pkgid npmcs
+43 verbose cwd /Users/morganmacfadyen/Desktop/Dale/vsproject/npmcs
+44 error Darwin 16.7.0
+45 error argv "/usr/local/bin/node" "/usr/local/bin/npm" "publish"
+46 error node v6.11.0
+47 error npm  v3.10.10
+48 error code E403
+49 error You cannot publish over the previously published version 1.3.2. : npmcs
+50 error If you need help, you may report this error at:
+50 error     <https://github.com/npm/npm/issues>
+51 verbose exit [ 1, true ]

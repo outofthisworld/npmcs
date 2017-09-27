@@ -25,12 +25,17 @@ function getOsEnvironmentalKeyword() {
  * @param {any} obj 
  * @returns 
  */
-function buildEnvironmentalScript(obj) {
+function buildEnvironmentalScript(obj, outer) {
     let qs = '';
     let cmd = getOsEnvironmentalKeyword();
-    if (!obj) return qs;
+    if (!outer) return qs;
+
+    obj = obj || {};
+    obj = Object.assign(outer, obj);
+
     for (key in obj) {
-        qs += cmd + key + '=' + obj[key] + '&&';
+        if (typeof obj[key] === 'string')
+            qs += cmd + key + '=' + obj[key] + '&&';
     }
     return qs;
 }
@@ -67,7 +72,8 @@ module.exports = function(options) {
     }
 
 
-    const scripts = npmcsScript.scripts[customPlatform || getPlatform()] || npmcsScript.scripts;
+    const os = getPlatform();
+    const scripts = npmcsScript.scripts[customPlatform || os] || npmcsScript.scripts;
 
 
     let scriptCommand = scripts[commandToRun];
@@ -93,11 +99,10 @@ module.exports = function(options) {
     let qs = buildEnvironmentalScript(
         npmcsScript['env'] ?
         npmcsScript['env'][customPlatform + '-' + mode] ||
-        npmcsScript['env'][getPlatform() + '-' + mode] ||
+        npmcsScript['env'][os + '-' + mode] ||
         npmcsScript['env'][customPlatform] ||
-        npmcsScript['env'][getPlatform()] ||
-        npmcsScript['env'] :
-        null
+        npmcsScript['env'][os] : null,
+        npmcsScript['env']
     );
 
 

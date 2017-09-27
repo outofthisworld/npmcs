@@ -122,7 +122,8 @@ Your package.json file should then look like the following:
 ```
 
 
-# environment
+# Environment
+
  npmcs also allows you to define environmental variables in a cross platform way by specifying "env" within the scripts portion of your package.json file. 
  
  This will not override any environmental settings that may have been set in your commands making it perfectly safe
@@ -142,11 +143,9 @@ module.exports = {
 ```javascript
 module.exports = {
     env: {
-		/* Windows environmental variables */
 		win: {
 			NODE_ENV: 'development'
 		},
-		/* Unix environmental variables */
 		nix: {
 			NODE_ENV: 'development'
 		}
@@ -154,7 +153,22 @@ module.exports = {
 }
  ``` 
 
- npmcs will look for properties defined in [platform] first before defaulting to env to find environmental variables. 
+ npmcs will look for environmental variables for a specific platform first before defaulting to the outer env object to find environmental variables. Thus anything defined in env will be set on all os environments, unless it is overriden by something more specific. An example is shown below:
+
+ ```javascript
+module.exports = {
+    env: {
+		NODE_ENV: 'development'
+		win: {
+		    NODE_ENV: 'production'
+		},
+		nix: {
+		    NIX_ENV: 'ImOnNix'
+		}
+	}
+}
+ ``` 
+In the example above, npmcs will set NODE_ENV to production on windows, but on nix will set it to development as nix does not override the NODE_ENV setting.
 
 
  npcms also lets you define environmental variables based on if you're running in development or production mode.

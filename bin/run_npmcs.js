@@ -8,6 +8,8 @@ module.exports = function () {
   args.npmcsScript = require(path.join(process.cwd(), 'npmcs-scripts'))
   let cmd = buildCommand(args)
 
+  process.stdout.write(`npmcs running command: ${cmd}\n`)
+
   exec(cmd, function (err) {
     if (err) {
       process.stderr.write(`npmcs: error executing scripts\n`)

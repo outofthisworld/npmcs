@@ -5,7 +5,7 @@
  * @returns 
  */
 function getPlatform () {
-  return /^win/.test(process.platform) ? 'win' : 'nix'
+  return /^win/.test(process.platform) ? 'win' : /^darwin/.test(process.platform) ? 'osx' : 'nix'
 }
 
 function isUsingPowerShell () {
@@ -36,7 +36,10 @@ const buildEnvironmentalScript = (obj, outer) => {
   obj = Object.assign(outer, obj)
 
   for (let key in obj) {
-    if (typeof obj[key] === 'string') { qs += cmd + key + '=' + obj[key] + '&&' }
+    if (typeof obj[key] === 'string') {
+      // Wrap the value in quotation marks if it has spaces
+      qs += cmd + key + '=' + (obj[key].indexOf(' ') !== -1 ? '"' + obj[key] + '"' : obj[key]) + '&&'
+    }
   }
   return qs
 }
@@ -104,15 +107,14 @@ module.exports = function (options) {
       return last.replace(match[0], buildCommandLiteral(lookUp[scriptToReplace]))
     }, command)
   })(scriptCommand)].map((commandString) => {
-    let finalCmd = buildEnvironmentalScript(
-      npmcsScript['env']
-        ? npmcsScript['env'][customPlatform + '-' + mode] ||
+    let obj = npmcsScript['env']
+      ? npmcsScript['env'][customPlatform + '-' + mode] ||
         npmcsScript['env'][os + '-' + mode] ||
         npmcsScript['env'][customPlatform] ||
-        npmcsScript['env'][os] : null,
-      npmcsScript['env']
-    ) + commandString
-    process.stdout.write(`npmcs running command: ${finalCmd}\n`)
-    return finalCmd
+        npmcsScript['env'][os] : null
+
+    obj = obj === undefined && os === 'osx' ? npmcsScript['env']['nix'] : null
+
+    return buildEnvironmentalScript(obj, npmcsScript['env']) + commandString
   }).find(() => true)
 }

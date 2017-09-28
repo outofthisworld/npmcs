@@ -114,6 +114,17 @@ describe('build command tests', function () {
 
     assert.equal(result, process.platform === 'win32'
       ? cmd + 'NODE_ENV=production&&node src/app.js' : cmd + 'NODE_ENV=development&&node src/app.js')
+
+    npmcsScript.env = {
+      NODE_ENV: 'this is a multiline environmental var'
+    }
+
+    result = buildCommand({
+      npmcsScript,
+      commandToRun
+    })
+
+    assert.equal(result, cmd + 'NODE_ENV="this is a multiline environmental var"&&node src/app.js')
   })
 
   it('replaces npm run option with command', function () {

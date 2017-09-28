@@ -1,21 +1,22 @@
 
 /**
  * Gets the current platform in a simplified manner.
- * 
- * @returns 
  */
 function getPlatform () {
   return /^win/.test(process.platform) ? 'win' : /^darwin/.test(process.platform) ? 'osx' : 'nix'
 }
 
+/*
+  Attempts to detect if powershell is being used.
+  This is the best method I could find to check, as there is no definitive
+  difference between launching a process in cmd prompt and powershell.
+*/
 function isUsingPowerShell () {
   return process.env.PATHEXT && process.env.PATHEXT.toLowerCase().includes('.cpl')
 }
 
 /**
  * Finds the keyword for setting environmental varaiable in the current os.
- * 
- * @returns 
  */
 const getOsEnvironmentalKeyword = () => {
   return getPlatform() === 'win' ? !isUsingPowerShell() ? 'set ' : '$env:' : 'export '
@@ -24,8 +25,6 @@ const getOsEnvironmentalKeyword = () => {
 /**
  * Creates a string from a javascript object
  * that will enable setting multiple environmental variables for the current os.
- * @param {any} obj 
- * @returns 
  */
 const buildEnvironmentalScript = (obj, outer) => {
   let qs = ''
@@ -37,13 +36,16 @@ const buildEnvironmentalScript = (obj, outer) => {
 
   for (let key in obj) {
     if (typeof obj[key] === 'string') {
-      // Wrap the value in quotation marks if it has spaces
-      qs += cmd + key + '=' + (obj[key].indexOf(' ') !== -1 ? '"' + obj[key] + '"' : obj[key]) + '&&'
+      qs += `${cmd}${key}=${obj[key].toString().indexOf(' ') !== -1
+        ? '"' + obj[key].toString() + '"' : obj[key]}&&`
     }
   }
   return qs
 }
 
+/*
+  Finds matches for npm run (task) and stores them in an array.
+*/
 const findNpmRunMatches = (command) => {
   let matches = []
   let match
@@ -56,8 +58,6 @@ const findNpmRunMatches = (command) => {
 
 /**
  * Builds the command to be run by exec.
- * 
- * @param {any} scripts 
  */
 module.exports = function (options) {
   if (!options) {
@@ -109,9 +109,9 @@ module.exports = function (options) {
   })(scriptCommand)].map((commandString) => {
     let obj = npmcsScript['env']
       ? npmcsScript['env'][customPlatform + '-' + mode] ||
-        npmcsScript['env'][os + '-' + mode] ||
-        npmcsScript['env'][customPlatform] ||
-        npmcsScript['env'][os] : null
+      npmcsScript['env'][os + '-' + mode] ||
+      npmcsScript['env'][customPlatform] ||
+      npmcsScript['env'][os] : null
 
     obj = obj === undefined && os === 'osx' ? npmcsScript['env']['nix'] : null
 

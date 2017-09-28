@@ -127,6 +127,48 @@ describe('build command tests', function () {
     assert.equal(result, cmd + 'NODE_ENV="this is a multiline environmental var"&&node src/app.js')
   })
 
+  it('defaults to nix on osx if no osx option given', function () {
+    if (!(/^darwin/.test(process.platform))) assert.equal(true, true)
+
+    let npmcsScript = {
+      scripts: {
+        start: 'node app.js'
+      },
+      env: {
+        nix: {
+          NODE_ENV: 'development'
+        }
+      }
+    }
+
+    let result = buildCommand({
+      npmcsScript,
+      commandToRun: 'start'
+    })
+
+    assert.equal(result, 'export NODE_ENV=development&&node app.js')
+
+    npmcsScript = {
+      scripts: {
+        start: 'node app.js'
+      },
+      env: {
+        test: 'true',
+        nix: {
+          NODE_ENV: 'development'
+        },
+        debug: true
+      }
+    }
+
+    result = buildCommand({
+      npmcsScript,
+      commandToRun: 'start'
+    })
+
+    assert.equal(result, 'export test=true&&export NODE_ENV=development&&node app.js')
+  })
+
   it('replaces npm run option with command', function () {
     let npmcsScript = {}
     npmcsScript.scripts = {
@@ -156,5 +198,20 @@ describe('build command tests', function () {
     })
 
     assert.equal(result, 'other')
+  })
+
+  it('throws an error when npm run option does not exist', function () {
+    let npmcsScript = {}
+    npmcsScript.scripts = {
+      start: 'npm run hi',
+      hi: 'npm run doesNotExist'
+    }
+
+    assert.throws(function () {
+      buildCommand({
+        npmcsScript,
+        commandToRun: 'start'
+      })
+    }, Error)
   })
 })

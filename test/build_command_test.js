@@ -128,7 +128,7 @@ describe('build command tests', function () {
   })
 
   it('defaults to nix on osx if no osx option given', function () {
-    if (!(/^darwin/.test(process.platform))) assert.equal(true, true)
+    if (!(/^darwin/.test(process.platform))) return true
 
     let npmcsScript = {
       scripts: {

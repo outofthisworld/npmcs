@@ -238,3 +238,6 @@ module.exports =  {
 [x] v1.4.2 Now detects and searches for osx key and then defaults to nix setting if
 osx is not found for backwards compatability. Also now encloses environmental 
 values that are multiple words in quotes.
+
+
+.

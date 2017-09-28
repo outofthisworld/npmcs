@@ -49,6 +49,14 @@ module.exports = {
 			nodemon: 'nodemon --debug src/app.js',
 			build: 'webpack -d --watch',
 			test: 'echo "Error: no test specified" && exit 1'
+		},
+		/* 
+			Additionally add different commands for osx: (note that if running npmcs
+			on osx and this is not specified it will then look to nix for the commands
+			to run.
+		*/
+		osx:{
+
 		}
 	}
 }
@@ -225,3 +233,8 @@ module.exports =  {
 
 [x] v1.4.1 Supports powershell, now cycles through scripts recursively so npm run
  can be used anywhere. Updated readme.
+
+
+[x] v1.4.2 Now detects and searches for osx key and then defaults to nix setting if
+osx is not found for backwards compatability. Also now encloses environmental 
+values that are multiple words in quotes.
